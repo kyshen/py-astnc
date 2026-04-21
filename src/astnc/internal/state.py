@@ -7,9 +7,9 @@ import numpy as np
 import opt_einsum as oe
 
 from astnc.internal.linalg import (
-    compress_from_factors_adaptive,
-    compress_from_implicit_factors_adaptive,
-    compress_matrix_adaptive,
+    factorize_matrix_adaptive,
+    fuse_factors_adaptive,
+    fuse_factors_implicit_sketch_adaptive,
 )
 
 
@@ -58,7 +58,7 @@ def adaptive_state_from_tensor(
     open_flat = int(np.prod(open_dims)) if open_dims else 1
     boundary_flat = int(np.prod(boundary_dims)) if boundary_dims else 1
     M = T.reshape(open_flat, boundary_flat)
-    result = compress_matrix_adaptive(
+    result = factorize_matrix_adaptive(
         M,
         tol=tol,
         randomized=randomized,
@@ -192,7 +192,7 @@ def merge_states(
             rank_label_left=rank_label_left,
             rank_label_right=rank_label_right,
         )
-        result = compress_from_implicit_factors_adaptive(
+        result = fuse_factors_implicit_sketch_adaptive(
             num_rows=open_flat,
             num_cols=boundary_flat,
             latent_rank=full_rank,
@@ -219,7 +219,7 @@ def merge_states(
         A_mat = A_outer.reshape(open_flat, full_rank)
         C = oe.contract(*left_args, *right_args, output_labels, optimize="greedy")
         B_mat = C.reshape(boundary_flat, full_rank)
-        result = compress_from_factors_adaptive(
+        result = fuse_factors_adaptive(
             A_mat,
             B_mat,
             tol=float(tol),

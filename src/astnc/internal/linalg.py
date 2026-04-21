@@ -47,7 +47,7 @@ def choose_rank_from_singular_values(s: np.ndarray, tol: float) -> tuple[int, fl
     return len(s), 0.0
 
 
-def compress_matrix_adaptive(
+def factorize_matrix_adaptive(
     M: np.ndarray,
     tol: float,
     randomized: bool = True,
@@ -63,7 +63,7 @@ def compress_matrix_adaptive(
     return AdaptiveCompressionResult(factors=factors, chosen_rank=rank, residual_ratio=residual_ratio)
 
 
-def compress_from_factors_adaptive(
+def fuse_factors_adaptive(
     A: np.ndarray,
     B: np.ndarray,
     tol: float,
@@ -88,7 +88,7 @@ def compress_from_factors_adaptive(
     )
 
 
-def compress_from_implicit_factors_adaptive(
+def fuse_factors_implicit_sketch_adaptive(
     *,
     num_rows: int,
     num_cols: int,
