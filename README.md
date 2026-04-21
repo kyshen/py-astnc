@@ -73,7 +73,6 @@ Typical `tol` values:
 - `ring(...)`
 - `tree(...)`
 - `grid2d(...)`
-- `create_contraction_cache(...)`
 
 ## Design Notes
 

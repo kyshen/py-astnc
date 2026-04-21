@@ -7,7 +7,6 @@ import numpy as np
 
 from astnc.internal.algorithms import astnc_contraction, exact_contraction
 from astnc.internal.blocking import make_blocks
-from astnc.types import ContractionCache
 
 
 @dataclass
@@ -23,13 +22,6 @@ class ASTNCConfig:
     n_power_iter: int = 0
     implicit_merge_sketch: bool = True
     cache_enabled: bool = True
-
-def _astnc_config_from_options(options: Dict[str, Any] | None) -> ASTNCConfig:
-    cfg = ASTNCConfig()
-    if options:
-        for key, value in options.items():
-            setattr(cfg, key, value)
-    return cfg
 
 
 def contract_exact(
@@ -59,17 +51,15 @@ def contract_astnc(
     tn,
     *,
     block_spec: Mapping[int, int] | None = None,
-    cache: ContractionCache | None = None,
     return_info: bool = False,
     **options: Any,
 ):
-    cfg = _astnc_config_from_options(options or None)
+    cfg = ASTNCConfig()
+    for key, value in options.items():
+        setattr(cfg, key, value)
     resolved_block_spec = {int(axis): int(size) for axis, size in dict(block_spec or {}).items()}
     blocks = make_blocks(tn, block_spec=resolved_block_spec)
-    state_cache = None if cache is None else cache.state_cache
-    if state_cache is not None:
-        state_cache.enabled = bool(cfg.cache_enabled)
-    result = astnc_contraction(tn, blocks, cfg, cache=state_cache)
+    result = astnc_contraction(tn, blocks, cfg)
     info = {
         "method": "astnc",
         "num_blocks": len(blocks),
@@ -84,9 +74,3 @@ def contract_astnc(
     if return_info:
         return np.asarray(result.dense), info
     return np.asarray(result.dense)
-
-
-def create_contraction_cache(*, enabled: bool = True) -> ContractionCache:
-    cache = ContractionCache()
-    cache.state_cache.enabled = bool(enabled)
-    return cache
