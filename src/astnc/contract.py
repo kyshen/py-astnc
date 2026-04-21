@@ -14,9 +14,6 @@ class ASTNCConfig:
     optimize: str = "greedy"
     seed: int = 0
     tol: float = 1e-3
-    tol_schedule: str = "depth_open"
-    tol_depth_decay: float = 1.5
-    tol_open_power: float = 0.5
     randomized: bool = True
     oversample: int = 1
     n_power_iter: int = 0
