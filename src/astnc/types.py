@@ -6,14 +6,6 @@ from typing import Any, Dict, Mapping
 from astnc.internal.cache import SeparatorStateCache
 from astnc.internal.network import TensorNetwork, TensorNode
 
-
-@dataclass(frozen=True)
-class Workpoint:
-    name: str
-    description: str
-    method_options: Dict[str, Any] = field(default_factory=dict)
-
-
 @dataclass
 class ContractionCache:
     """Reusable cache container for separator states."""

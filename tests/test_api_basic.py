@@ -12,16 +12,17 @@ def test_basic_api_roundtrip():
     )
     dense, info = at.contract_astnc(
         tn,
-        workpoint="l2",
+        tol=1e-3,
         block_spec={0: 1, 1: 1},
         return_info=True,
     )
     assert dense.shape == tn.output_shape
     assert info["method"] == "astnc"
-    assert info["workpoint"] == "l2"
     assert info["block_spec"] == {0: 1, 1: 1}
     assert info["num_blocks"] > 1
-    assert "mean_rank" in info["meta"]
+    assert len(info["blocks"]) == info["num_blocks"]
+    assert info["tree"] is not None
+    assert "per_block" in info["tree"]
 
 
 def test_exact_api_roundtrip():

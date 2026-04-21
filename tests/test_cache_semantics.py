@@ -13,14 +13,14 @@ def test_cache_reuse_accumulates_hits():
     cache = at.create_contraction_cache()
     _, first_info = at.contract_astnc(
         tn,
-        workpoint="l2",
+        tol=1e-3,
         block_spec={0: 1, 1: 1},
         cache=cache,
         return_info=True,
     )
     _, second_info = at.contract_astnc(
         tn,
-        workpoint="l2",
+        tol=1e-3,
         block_spec={0: 1, 1: 1},
         cache=cache,
         return_info=True,

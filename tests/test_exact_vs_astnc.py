@@ -12,7 +12,7 @@ def test_exact_and_astnc_have_same_shape_and_bounded_error():
         seed=0,
     )
     exact = at.contract_exact(tn)
-    approx = at.contract_astnc(tn, workpoint="l2", block_spec={0: 1, 1: 1})
+    approx = at.contract_astnc(tn, tol=1e-3, block_spec={0: 1, 1: 1})
     rel = np.linalg.norm(exact - approx) / (np.linalg.norm(exact) + 1e-12)
     assert exact.shape == approx.shape
     assert np.isfinite(rel)

@@ -1,4 +1,9 @@
+from pathlib import Path
+import sys
+
 import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import astnc as at
 
@@ -12,12 +17,12 @@ tn = at.grid2d(
 )
 
 reference = at.contract_exact(tn)
-for name in at.available_workpoints():
+for tol in (5e-4, 3e-3, 4e-3):
     dense, info = at.contract_astnc(
         tn,
-        workpoint=name,
-        block_spec={0: 1, 1: 1},
+        tol=tol,
+        block_spec={},
         return_info=True,
     )
     rel = np.linalg.norm(reference - dense) / (np.linalg.norm(reference) + 1e-12)
-    print(name, "rel_error=", rel, "mean_rank=", info["meta"].get("mean_rank"))
+    print("tol=", tol, "rel_error=", rel)

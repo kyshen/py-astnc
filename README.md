@@ -5,7 +5,7 @@
 It extracts the reusable core of the AS-TNC research prototype into a package-oriented project:
 
 - `exact` contraction as a baseline
-- `astnc` adaptive approximation with workpoints (`l1`, `l2`, `l3`)
+- `astnc` adaptive approximation with configurable `tol`
 - blockwise output emission
 - reusable separator-state cache across block calls
 - small, direct API for demos, tests, and downstream reuse
@@ -41,14 +41,15 @@ tn = at.random_connected(
 
 dense, info = at.contract_astnc(
     tn,
-    workpoint="l2",
+    tol=1e-3,
     block_spec={0: 1, 1: 1},
     return_info=True,
 )
 
 print(dense.shape)
 print(info["rel_method"])
-print(info["meta"]["mean_rank"])
+print(info["tree"]["per_block"][0])
+print(info["tree"]["children"][0]["per_block"][0])
 ```
 
 For the exact baseline, use:
@@ -57,7 +58,13 @@ For the exact baseline, use:
 exact = at.contract_exact(tn)
 ```
 
-`block_spec`, `workpoint`, and cache reuse are only supported by `contract_astnc(...)`.
+Typical `tol` values:
+
+- `5e-4`: more accurate
+- `1e-3`: balanced default
+- `3e-3`: faster, looser approximation
+
+`block_spec` and cache reuse are only supported by `contract_astnc(...)`.
 
 ## Public API
 
@@ -68,11 +75,8 @@ exact = at.contract_exact(tn)
 - `tree(...)`
 - `grid2d(...)`
 - `create_contraction_cache(...)`
-- `get_workpoint(...)`
-- `available_workpoints()`
 
 ## Design Notes
 
 - Paper reproduction code, Hydra configuration, CSV exporters, and experiment runners are deliberately excluded.
 - The public layer exposes a small tool-oriented surface, while algorithm details live in `astnc.internal`.
-- Workpoints give a stable user-facing knob without forcing callers to manage every compression hyperparameter.

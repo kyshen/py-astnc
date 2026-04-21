@@ -1,4 +1,9 @@
+from pathlib import Path
+import sys
+
 import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import astnc as at
 
@@ -14,7 +19,7 @@ tn = at.random_connected(
 exact, exact_info = at.contract_exact(tn, return_info=True)
 astnc, astnc_info = at.contract_astnc(
     tn,
-    workpoint="l2",
+    tol=1e-3,
     block_spec={0: 1, 1: 1},
     return_info=True,
 )
