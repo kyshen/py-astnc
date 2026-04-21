@@ -48,8 +48,7 @@ dense, info = at.contract_astnc(
 
 print(dense.shape)
 print(info["rel_method"])
-print(info["tree"]["per_block"][0])
-print(info["tree"]["children"][0]["per_block"][0])
+print(info["meta"]["mean_internal_rank"])
 ```
 
 For the exact baseline, use:

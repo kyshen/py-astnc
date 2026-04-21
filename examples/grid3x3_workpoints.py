@@ -17,7 +17,7 @@ tn = at.grid2d(
 )
 
 reference = at.contract_exact(tn)
-for tol in (5e-4, 3e-3, 4e-3):
+for tol in (5e-4, 1e-3, 3e-3):
     dense, info = at.contract_astnc(
         tn,
         tol=tol,
@@ -25,4 +25,4 @@ for tol in (5e-4, 3e-3, 4e-3):
         return_info=True,
     )
     rel = np.linalg.norm(reference - dense) / (np.linalg.norm(reference) + 1e-12)
-    print("tol=", tol, "rel_error=", rel)
+    print("tol=", tol, "rel_error=", rel, "mean_internal_rank=", info["meta"].get("mean_internal_rank"))

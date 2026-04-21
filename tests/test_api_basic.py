@@ -20,9 +20,7 @@ def test_basic_api_roundtrip():
     assert info["method"] == "astnc"
     assert info["block_spec"] == {0: 1, 1: 1}
     assert info["num_blocks"] > 1
-    assert len(info["blocks"]) == info["num_blocks"]
-    assert info["tree"] is not None
-    assert "per_block" in info["tree"]
+    assert "mean_internal_rank" in info["meta"]
 
 
 def test_exact_api_roundtrip():

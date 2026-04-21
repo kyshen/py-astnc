@@ -22,5 +22,4 @@ dense, info = at.contract_astnc(
 
 print("shape:", dense.shape)
 print("blocks:", info["num_blocks"])
-print("root:", info["tree"]["per_block"][0])
-print("left child:", info["tree"]["children"][0]["per_block"][0])
+print("mean internal rank:", info["meta"].get("mean_internal_rank"))

@@ -70,9 +70,6 @@ def contract_astnc(
     if state_cache is not None:
         state_cache.enabled = bool(cfg.cache_enabled)
     result = astnc_contraction(tn, blocks, cfg, cache=state_cache)
-    meta = dict(result.meta)
-    tree = meta.pop("tree", None)
-    block_runs = meta.pop("blocks", [])
     info = {
         "method": "astnc",
         "num_blocks": len(blocks),
@@ -82,9 +79,7 @@ def contract_astnc(
         "emit_time_sec": float(result.emit_time_sec),
         "total_time_sec": float(result.contract_time_sec + result.emit_time_sec),
         "rel_method": "astnc",
-        "blocks": block_runs,
-        "tree": tree,
-        "meta": meta,
+        "meta": dict(result.meta),
     }
     if return_info:
         return np.asarray(result.dense), info
