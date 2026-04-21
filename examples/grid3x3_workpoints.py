@@ -11,16 +11,13 @@ tn = at.grid2d(
     seed=0,
 )
 
-reference = at.materialize(tn, method="exact", block_labels=2, chunk_size=1)
+reference = at.contract_exact(tn)
 for name in at.available_workpoints():
-    dense, info = at.materialize(
+    dense, info = at.contract_astnc(
         tn,
-        method="astnc",
         workpoint=name,
-        block_labels=2,
-        chunk_size=1,
+        block_spec={0: 1, 1: 1},
         return_info=True,
     )
     rel = np.linalg.norm(reference - dense) / (np.linalg.norm(reference) + 1e-12)
     print(name, "rel_error=", rel, "mean_rank=", info["meta"].get("mean_rank"))
-

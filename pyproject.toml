@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "astnc"
 version = "0.1.0"
-description = "Approximate tensor-network materialization with exact, fixed-rank, and adaptive ASTNC baselines."
+description = "Approximate tensor-network contraction with exact and adaptive ASTNC baselines."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "OpenAI Codex" }]
-keywords = ["tensor-network", "approximation", "materialization", "linear-algebra"]
+authors = [{ name = "Kaiyu Shen" }]
+keywords = ["tensor-network", "contraction", "approximation", "linear-algebra"]
 dependencies = [
   "networkx>=3.0",
   "numpy>=1.24",
@@ -30,4 +30,3 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-

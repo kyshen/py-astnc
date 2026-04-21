@@ -8,16 +8,13 @@ tn = at.ring(
     seed=0,
 )
 
-dense, info = at.materialize(
+dense, info = at.contract_astnc(
     tn,
-    method="astnc",
     workpoint="l2",
-    block_labels=2,
-    chunk_size=1,
+    block_spec={0: 1, 1: 1},
     return_info=True,
 )
 
 print("shape:", dense.shape)
 print("blocks:", info["num_blocks"])
 print("mean rank:", info["meta"].get("mean_rank"))
-

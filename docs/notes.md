@@ -9,7 +9,7 @@ Included:
 - blockwise output slicing
 - recursive partitioning
 - separator-state construction and merging
-- exact, fixed-rank, and adaptive ASTNC materialization paths
+- exact and adaptive ASTNC contraction paths
 - reusable separator-state cache
 
 Excluded:
@@ -19,5 +19,4 @@ Excluded:
 - CSV export and paper reproduction scripts
 - paper assets and reporting-only metrics
 
-The main engineering goal is to expose the materialization capability as a clean package API rather than as an experiment pipeline.
-
+The main engineering goal is to expose the contraction capability as a clean package API rather than as an experiment pipeline.

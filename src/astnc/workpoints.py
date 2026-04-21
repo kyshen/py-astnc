@@ -9,9 +9,6 @@ _WORKPOINTS: dict[str, Workpoint] = {
         name="l1",
         description="Most accurate default ASTNC setting.",
         method_options={
-            "rank_policy": "adaptive",
-            "target_rank": 2,
-            "max_rank": 16,
             "leaf_tol": 5e-4,
             "merge_tol": 2e-3,
         },
@@ -20,9 +17,6 @@ _WORKPOINTS: dict[str, Workpoint] = {
         name="l2",
         description="Balanced accuracy and runtime.",
         method_options={
-            "rank_policy": "adaptive",
-            "target_rank": 2,
-            "max_rank": 16,
             "leaf_tol": 1e-3,
             "merge_tol": 5e-3,
         },
@@ -31,9 +25,6 @@ _WORKPOINTS: dict[str, Workpoint] = {
         name="l3",
         description="Fastest default ASTNC setting with looser tolerances.",
         method_options={
-            "rank_policy": "adaptive",
-            "target_rank": 2,
-            "max_rank": 16,
             "leaf_tol": 3e-3,
             "merge_tol": 1.5e-2,
         },
@@ -51,4 +42,3 @@ def get_workpoint(name: str) -> Workpoint:
         return _WORKPOINTS[key]
     except KeyError as exc:
         raise InvalidWorkpointError(f"Unknown workpoint: {name!r}") from exc
-

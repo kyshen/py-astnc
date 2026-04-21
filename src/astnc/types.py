@@ -15,7 +15,7 @@ class Workpoint:
 
 
 @dataclass
-class MaterializationCache:
+class ContractionCache:
     """Reusable cache container for separator states."""
 
     state_cache: SeparatorStateCache = field(default_factory=SeparatorStateCache)
@@ -27,4 +27,3 @@ class MaterializationCache:
 TensorNetworkLike = TensorNetwork
 TensorNodeLike = TensorNode
 Options = Mapping[str, Any]
-

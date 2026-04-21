@@ -10,22 +10,18 @@ def test_cache_reuse_accumulates_hits():
         open_legs_per_node=1,
         seed=0,
     )
-    cache = at.create_cache()
-    _, first_info = at.materialize(
+    cache = at.create_contraction_cache()
+    _, first_info = at.contract_astnc(
         tn,
-        method="astnc",
         workpoint="l2",
-        block_labels=2,
-        chunk_size=1,
+        block_spec={0: 1, 1: 1},
         cache=cache,
         return_info=True,
     )
-    _, second_info = at.materialize(
+    _, second_info = at.contract_astnc(
         tn,
-        method="astnc",
         workpoint="l2",
-        block_labels=2,
-        chunk_size=1,
+        block_spec={0: 1, 1: 1},
         cache=cache,
         return_info=True,
     )

@@ -1,17 +1,16 @@
 # ASTNC
 
-`astnc` is a compact Python toolkit for dense materialization of tensor-network outputs with controllable approximation.
+`astnc` is a compact Python toolkit for adaptive sketch tensor network contraction with controllable approximation.
 
 It extracts the reusable core of the AS-TNC research prototype into a package-oriented project:
 
-- `exact` materialization as a baseline
-- `fixed_rank` low-rank separator compression
+- `exact` contraction as a baseline
 - `astnc` adaptive approximation with workpoints (`l1`, `l2`, `l3`)
 - blockwise output emission
 - reusable separator-state cache across block calls
 - small, direct API for demos, tests, and downstream reuse
 
-This project is intentionally not a generic tensor-network framework and not a paper-reproduction harness. The focus is open-leg dense output materialization.
+This project is intentionally not a generic tensor-network framework and not a paper-reproduction harness. The focus is open-leg dense output contraction.
 
 ## Install
 
@@ -40,12 +39,10 @@ tn = at.random_connected(
     seed=0,
 )
 
-dense, info = at.materialize(
+dense, info = at.contract_astnc(
     tn,
-    method="astnc",
     workpoint="l2",
-    block_labels=2,
-    chunk_size=1,
+    block_spec={0: 1, 1: 1},
     return_info=True,
 )
 
@@ -54,14 +51,23 @@ print(info["rel_method"])
 print(info["meta"]["mean_rank"])
 ```
 
+For the exact baseline, use:
+
+```python
+exact = at.contract_exact(tn)
+```
+
+`block_spec`, `workpoint`, and cache reuse are only supported by `contract_astnc(...)`.
+
 ## Public API
 
-- `materialize(...)`
+- `contract_exact(...)`
+- `contract_astnc(...)`
 - `random_connected(...)`
 - `ring(...)`
 - `tree(...)`
 - `grid2d(...)`
-- `create_cache(...)`
+- `create_contraction_cache(...)`
 - `get_workpoint(...)`
 - `available_workpoints()`
 
@@ -70,4 +76,3 @@ print(info["meta"]["mean_rank"])
 - Paper reproduction code, Hydra configuration, CSV exporters, and experiment runners are deliberately excluded.
 - The public layer exposes a small tool-oriented surface, while algorithm details live in `astnc.internal`.
 - Workpoints give a stable user-facing knob without forcing callers to manage every compression hyperparameter.
-
