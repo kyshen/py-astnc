@@ -108,38 +108,19 @@ def _rng_from_state_key(base_seed: int, state_key: StateCacheKey) -> np.random.G
     return np.random.default_rng(seed)
 
 
-def _partition_depth_info(
-    part: PartitionNode,
-    depth: int = 0,
-    output: Dict[tuple[int, ...], tuple[int, int, int]] | None = None,
-) -> Dict[tuple[int, ...], tuple[int, int, int]]:
-    if output is None:
-        output = {}
-    output[part.node_key] = (depth, len(part.open_labels), part.subtree_size)
-    if part.children:
-        for child in part.children:
-            _partition_depth_info(child, depth + 1, output)
-    return output
-
-
-def _max_partition_depth(part: PartitionNode) -> int:
-    if not part.children:
-        return 0
-    return 1 + max(_max_partition_depth(child) for child in part.children)
-
-
 def _scheduled_tol(
     cfg: Any,
     *,
     base_tol: float,
     part: PartitionNode,
-    depth_info: Dict[tuple[int, ...], tuple[int, int, int]],
-    max_depth: int,
+    tree_height: int,
 ) -> float:
     schedule = str(getattr(cfg, "tol_schedule", "flat"))
     if schedule == "flat":
         return float(base_tol)
-    depth, open_count, subtree_size = depth_info.get(part.node_key, (0, len(part.open_labels), part.subtree_size))
+    depth = int(part.depth)
+    open_count = len(part.open_labels)
+    subtree_size = part.subtree_size
     depth_decay = float(getattr(cfg, "tol_depth_decay", 1.5))
     open_power = float(getattr(cfg, "tol_open_power", 0.5))
     depth_factor = depth_decay ** float(depth)
@@ -151,7 +132,7 @@ def _scheduled_tol(
         size_factor = float(max(1, subtree_size)) ** 0.25
         return float(tol / size_factor)
     if schedule == "root_strict":
-        strictness = 1.0 + float(max_depth - depth)
+        strictness = 1.0 + float(tree_height - depth)
         return float(base_tol / strictness)
     return float(base_tol)
 
@@ -198,8 +179,7 @@ def _build_state(
     cache: SeparatorStateCache | None = None,
     stats: ASTNCRuntimeStats | None = None,
     base_seed: int = 0,
-    depth_info: Dict[tuple[int, ...], tuple[int, int, int]] | None = None,
-    max_depth: int = 0,
+    tree_height: int = 0,
 ) -> SeparatorState:
     state_key = _state_cache_key(part, slice_map, cfg)
     if cache is not None:
@@ -209,14 +189,12 @@ def _build_state(
     rng = _rng_from_state_key(base_seed, state_key)
     if part.is_leaf:
         local_tol = None
-        if depth_info is not None:
-            local_tol = _scheduled_tol(
-                cfg,
-                base_tol=float(getattr(cfg, "tol", 1e-3)),
-                part=part,
-                depth_info=depth_info,
-                max_depth=max_depth,
-            )
+        local_tol = _scheduled_tol(
+            cfg,
+            base_tol=float(getattr(cfg, "tol", 1e-3)),
+            part=part,
+            tree_height=tree_height,
+        )
         state = _leaf_state(tn, part, slice_map, cfg, rng=rng, stats=stats, local_tol=local_tol)
         if cache is not None:
             cache.put(state_key, state)
@@ -231,8 +209,7 @@ def _build_state(
         cache=cache,
         stats=stats,
         base_seed=base_seed,
-        depth_info=depth_info,
-        max_depth=max_depth,
+        tree_height=tree_height,
     )
     s_right = _build_state(
         tn,
@@ -242,20 +219,17 @@ def _build_state(
         cache=cache,
         stats=stats,
         base_seed=base_seed,
-        depth_info=depth_info,
-        max_depth=max_depth,
+        tree_height=tree_height,
     )
     local_tol = float(getattr(cfg, "tol", 1e-2))
-    if depth_info is not None:
-        local_tol = _scheduled_tol(
-            cfg,
-            base_tol=float(getattr(cfg, "tol", 1e-2)),
-            part=part,
-            depth_info=depth_info,
-            max_depth=max_depth,
-        )
-        if stats is not None:
-            stats.observe_tol(local_tol)
+    local_tol = _scheduled_tol(
+        cfg,
+        base_tol=float(getattr(cfg, "tol", 1e-2)),
+        part=part,
+        tree_height=tree_height,
+    )
+    if stats is not None:
+        stats.observe_tol(local_tol)
     state, merge_info = merge_states(
         s_left,
         s_right,
@@ -294,8 +268,7 @@ def astnc_contraction(
     import time
 
     partition = build_partition_tree(tn)
-    depth_info = _partition_depth_info(partition)
-    max_depth = _max_partition_depth(partition)
+    tree_height = partition.height
     state_cache = cache if cache is not None else SeparatorStateCache(enabled=bool(getattr(cfg, "cache_enabled", True)))
     stats = ASTNCRuntimeStats()
     base_seed = int(getattr(cfg, "seed", 0))
@@ -315,8 +288,7 @@ def astnc_contraction(
             cache=state_cache,
             stats=stats,
             base_seed=base_seed,
-            depth_info=depth_info,
-            max_depth=max_depth,
+            tree_height=tree_height,
         )
         perm = [state.open_labels.index(label) for label in tn.open_label_order]
         block_tensor = _state_to_dense(state)

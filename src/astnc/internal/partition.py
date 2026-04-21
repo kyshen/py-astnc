@@ -15,6 +15,8 @@ class PartitionNode:
     boundary_labels: List[int]
     open_labels: List[int]
     cut_labels: List[int]
+    depth: int
+    height: int
 
     @property
     def is_leaf(self) -> bool:
@@ -56,11 +58,11 @@ def _cut_labels_between(tn: TensorNetwork, left: Set[int], right: Set[int]) -> L
     return sorted(output)
 
 
-def _recursive_build(tn: TensorNetwork, node_ids: Set[int]) -> PartitionNode:
+def _recursive_build(tn: TensorNetwork, node_ids: Set[int], depth: int = 0) -> PartitionNode:
     boundary_labels = _subtree_boundary_labels(tn, node_ids)
     open_labels = _subtree_open_labels(tn, node_ids)
     if len(node_ids) == 1:
-        return PartitionNode(frozenset(node_ids), None, boundary_labels, open_labels, [])
+        return PartitionNode(frozenset(node_ids), None, boundary_labels, open_labels, [], depth, 0)
 
     subgraph = tn.interaction_graph().subgraph(node_ids).copy()
     if subgraph.number_of_edges() == 0:
@@ -75,11 +77,11 @@ def _recursive_build(tn: TensorNetwork, node_ids: Set[int]) -> PartitionNode:
             left_nodes, right_nodes = {items[0]}, set(items[1:])
 
     cut_labels = _cut_labels_between(tn, left_nodes, right_nodes)
-    left = _recursive_build(tn, left_nodes)
-    right = _recursive_build(tn, right_nodes)
-    return PartitionNode(frozenset(node_ids), [left, right], boundary_labels, open_labels, cut_labels)
+    left = _recursive_build(tn, left_nodes, depth + 1)
+    right = _recursive_build(tn, right_nodes, depth + 1)
+    height = 1 + max(left.height, right.height)
+    return PartitionNode(frozenset(node_ids), [left, right], boundary_labels, open_labels, cut_labels, depth, height)
 
 
 def build_partition_tree(tn: TensorNetwork) -> PartitionNode:
     return _recursive_build(tn, set(node.node_id for node in tn.nodes))
-
